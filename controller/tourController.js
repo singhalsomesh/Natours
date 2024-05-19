@@ -64,12 +64,11 @@ exports.getAllTour = async (req,res)=>{
         }
 
         //pagination
-        if (req.query.page){
-            const page = req.query.page * 1 || 1;
-            const limit = (req.query.limit && req.query.limit * 1) || 10;
-            const skipResult = (page - 1) * limit;
-            query.skip(skipResult).limit(limit); 
-        }
+        const page = req.query.page * 1 || 1;
+        const limit = req.query.limit * 1 || 10;
+        const skipResult = (page - 1) * limit;
+        query.skip(skipResult).limit(limit); 
+        
 
         const tours = await query;
         res.status(201).json({
