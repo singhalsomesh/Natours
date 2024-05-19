@@ -40,6 +40,8 @@ exports.getAllTour = async (req,res)=>{
         queryObject = queryObject.replace(/\b(gte|gt|lte|lt)\b/g,match => `$${match}`)
 
         let query = Tour.find(JSON.parse(queryObject));
+        
+        //sorting
         if(req.query.sort){
             const sortBy = req.query.sort.split(',').join(' ');
             query.sort(sortBy);
@@ -47,6 +49,7 @@ exports.getAllTour = async (req,res)=>{
             query.sort('-createdAt');
         }
 
+        //field limiting
         if (req.query.fields) {
             let requestedFields = req.query.fields.split(',').join(' ');
             let hasExclusion = requestedFields.split(' ').some(field => field.trim().startsWith('-'));
@@ -58,6 +61,14 @@ exports.getAllTour = async (req,res)=>{
             }
         } else {
             query.select('-__v');
+        }
+
+        //pagination
+        if (req.query.page){
+            const page = req.query.page * 1 || 1;
+            const limit = (req.query.limit && req.query.limit * 1) || 10;
+            const skipResult = (page - 1) * limit;
+            query.skip(skipResult).limit(limit); 
         }
 
         const tours = await query;
